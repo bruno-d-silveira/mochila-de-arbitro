@@ -1,0 +1,13 @@
+# Ambiente e cache
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Segredos (a mochila não usa, mas nunca sobem)
+.env
+.env.*
+
+# Sistema
+.DS_Store
+Thumbs.db
