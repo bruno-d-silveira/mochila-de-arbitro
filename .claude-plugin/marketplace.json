@@ -1,0 +1,17 @@
+{
+  "name": "mochila-de-arbitro",
+  "description": "File provenance tools by Bruno Duarte da Silveira: local and read-only.",
+  "owner": {
+    "name": "Bruno Duarte da Silveira",
+    "url": "https://github.com/bruno-d-silveira"
+  },
+  "plugins": [
+    {
+      "name": "mochila-de-arbitro",
+      "source": "./",
+      "description": "A referee's kit for file provenance: SHA-256, EXIF date and photo chronology, local and read-only.",
+      "version": "0.1.0",
+      "license": "Apache-2.0"
+    }
+  ]
+}
