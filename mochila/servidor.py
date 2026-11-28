@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 
 from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver.exceptions import ResourceError, ToolError
 from mcp.types import ToolAnnotations
 
 from mochila.cronologia import cronologia as montar_cronologia
@@ -30,6 +31,14 @@ mochila = MCPServer(
 )
 
 
+class ForaDoAcervo(ToolError, ResourceError):
+    """Recusa esperada: o caminho pedido sai da pasta do acervo.
+
+    Herdar de ToolError e de ResourceError diz ao SDK que é uma recusa de propósito,
+    não um defeito: o cliente recebe o erro e o servidor não registra traceback.
+    """
+
+
 def acervo() -> Path:
     return Path(os.getenv("MOCHILA_ACERVO", ".")).resolve()
 
@@ -39,7 +48,7 @@ def no_acervo(relativo: str) -> Path:
     raiz = acervo()
     alvo = (raiz / relativo).resolve()
     if alvo != raiz and raiz not in alvo.parents:
-        raise ValueError("Caminho fora do acervo.")
+        raise ForaDoAcervo("Caminho fora do acervo.")
     return alvo
 
 
