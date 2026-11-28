@@ -34,7 +34,15 @@ uv sync
 
 O servidor só enxerga a pasta que você indicar em `MOCHILA_ACERVO`.
 
-**Claude Code:**
+**Claude Code, como plugin** (servidor e skill juntos, sem clonar):
+
+```
+/plugin install mochila-de-arbitro --marketplace bruno-d-silveira/mochila-de-arbitro
+```
+
+Defina `MOCHILA_ACERVO` antes de abrir o Claude Code; sem ela, o acervo é a pasta onde o Claude Code foi aberto.
+
+**Claude Code, manual:**
 
 ```bash
 claude mcp add mochila-de-arbitro -e MOCHILA_ACERVO=/caminho/do/acervo -- uv --directory /caminho/da/mochila-de-arbitro run python -m mochila.servidor

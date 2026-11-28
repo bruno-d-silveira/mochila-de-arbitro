@@ -1,0 +1,26 @@
+{
+  "name": "mochila-de-arbitro",
+  "version": "0.1.0",
+  "description": "A referee's kit for file provenance: SHA-256, EXIF date and photo chronology, local and read-only.",
+  "author": {
+    "name": "Bruno Duarte da Silveira",
+    "url": "https://github.com/bruno-d-silveira"
+  },
+  "homepage": "https://github.com/bruno-d-silveira/mochila-de-arbitro",
+  "repository": "https://github.com/bruno-d-silveira/mochila-de-arbitro",
+  "license": "Apache-2.0",
+  "keywords": [
+    "provenance",
+    "sha256",
+    "exif",
+    "mcp",
+    "read-only",
+    "field-notes"
+  ],
+  "network": {
+    "hosts": [
+      "pypi.org",
+      "files.pythonhosted.org"
+    ]
+  }
+}
