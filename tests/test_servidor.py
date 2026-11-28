@@ -4,6 +4,7 @@ import asyncio
 import json
 
 import pytest
+from mcp.server.mcpserver.exceptions import ToolError, UnexpectedToolError
 
 from mochila import servidor
 
@@ -38,8 +39,28 @@ def test_cronologia_pelo_servidor(acervo):
 
 @pytest.mark.parametrize("fuga", ["../segredo.txt", "..\\segredo.txt", "2026-11-27/../../segredo.txt"])
 def test_caminho_fora_do_acervo_e_recusado(acervo, fuga):
-    with pytest.raises(ValueError):
+    with pytest.raises(servidor.ForaDoAcervo):
         servidor.selar(fuga)
+
+
+def test_recusa_e_erro_esperado_e_nao_defeito(acervo):
+    """Pelo servidor, a recusa chega como ToolError comum: o SDK não loga traceback de defeito."""
+    with pytest.raises(ToolError) as erro:
+        rodar(servidor.mochila.call_tool("selar", {"caminho": "../segredo.txt"}))
+    assert not isinstance(erro.value, UnexpectedToolError)
+    assert "fora do acervo" in str(erro.value)
+
+
+def test_arquivo_inexistente_e_recusa_e_nao_defeito(acervo):
+    with pytest.raises(ToolError) as erro:
+        rodar(servidor.mochila.call_tool("selar", {"caminho": "2026-11-27/nao_existe.jpg"}))
+    assert not isinstance(erro.value, UnexpectedToolError)
+    assert "não encontrado" in str(erro.value)
+
+
+def test_pasta_inexistente_na_cronologia_e_recusa(acervo):
+    with pytest.raises(servidor.NaoEncontrado):
+        servidor.cronologia("pasta_que_nao_existe")
 
 
 def test_prompt_traz_o_metodo():
