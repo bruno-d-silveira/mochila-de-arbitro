@@ -51,6 +51,18 @@ def test_recusa_e_erro_esperado_e_nao_defeito(acervo):
     assert "fora do acervo" in str(erro.value)
 
 
+def test_arquivo_inexistente_e_recusa_e_nao_defeito(acervo):
+    with pytest.raises(ToolError) as erro:
+        rodar(servidor.mochila.call_tool("selar", {"caminho": "2026-11-27/nao_existe.jpg"}))
+    assert not isinstance(erro.value, UnexpectedToolError)
+    assert "não encontrado" in str(erro.value)
+
+
+def test_pasta_inexistente_na_cronologia_e_recusa(acervo):
+    with pytest.raises(servidor.NaoEncontrado):
+        servidor.cronologia("pasta_que_nao_existe")
+
+
 def test_prompt_traz_o_metodo():
     texto = servidor.registrar_o_dia("27/11/2026")
     assert "27/11/2026" in texto

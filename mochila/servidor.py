@@ -12,6 +12,7 @@ Rodar:  MOCHILA_ACERVO=/caminho/do/acervo  uv run python -m mochila.servidor
 
 import json
 import os
+from contextlib import contextmanager
 from pathlib import Path
 
 from mcp.server.mcpserver import MCPServer
@@ -31,12 +32,33 @@ mochila = MCPServer(
 )
 
 
-class ForaDoAcervo(ToolError, ResourceError):
-    """Recusa esperada: o caminho pedido sai da pasta do acervo.
+class Recusa(ToolError, ResourceError):
+    """Recusa esperada da mochila, não um defeito.
 
-    Herdar de ToolError e de ResourceError diz ao SDK que é uma recusa de propósito,
-    não um defeito: o cliente recebe o erro e o servidor não registra traceback.
+    Herdar de ToolError e de ResourceError diz ao SDK que o erro é de propósito:
+    o cliente recebe a mensagem e o servidor não registra traceback de crash.
     """
+
+
+class ForaDoAcervo(Recusa):
+    """O caminho pedido sai da pasta do acervo."""
+
+
+class NaoEncontrado(Recusa):
+    """O arquivo ou a pasta pedida não existe dentro do acervo."""
+
+
+@contextmanager
+def pedido_do_cliente():
+    """Traduz, na fronteira do servidor, os erros de pedido que selo e cronologia levantam.
+
+    selo.py e cronologia.py não conhecem o MCP: avisam com as exceções do Python.
+    Aqui elas viram Recusa, porque um caminho que não existe é pedido errado, não defeito.
+    """
+    try:
+        yield
+    except (FileNotFoundError, NotADirectoryError) as erro:
+        raise NaoEncontrado(str(erro)) from erro
 
 
 def acervo() -> Path:
@@ -61,7 +83,8 @@ def no_acervo(relativo: str) -> Path:
     annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=False),
 )
 def selar(caminho: str) -> dict:
-    return selar_arquivo(no_acervo(caminho))
+    with pedido_do_cliente():
+        return selar_arquivo(no_acervo(caminho))
 
 
 @mochila.resource(
@@ -70,7 +93,9 @@ def selar(caminho: str) -> dict:
     description="Fotos de uma pasta do acervo em ordem de EXIF, cada uma com seu selo. Use '.' para a raiz.",
 )
 def cronologia(pasta: str) -> str:
-    return json.dumps(montar_cronologia(no_acervo(pasta)), ensure_ascii=False, indent=2)
+    with pedido_do_cliente():
+        lista = montar_cronologia(no_acervo(pasta))
+    return json.dumps(lista, ensure_ascii=False, indent=2)
 
 
 @mochila.prompt(
